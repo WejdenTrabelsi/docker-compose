@@ -1,0 +1,35 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: unless-stopped
+    networks:
+      - mern-network
+
+  web:
+    build: ./server   # <-- build locally instead of pulling from Docker Hub
+    container_name: server
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/mern
+    depends_on:
+      - mongodb
+    networks:
+      - mern-network
+
+  client:
+    build: ./client
+    container_name: client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - web
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
